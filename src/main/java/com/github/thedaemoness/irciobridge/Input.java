@@ -17,10 +17,10 @@ class Input extends InputStream {
 		while(input.hasNextLine()) { //WARNING: break;
 			final Message m = new Message(input.nextLine());
 			System.err.println(m);
-			if("PING".equals(m.command)) {
-				output.write("PONG :"+m.text);
-			} else if("PRIVMSG".equals(m.command) && chan.equals(m.args)) {
-				buffer = (m.text+'\n').getBytes();
+			if("PING".equals(m.getCommand())) {
+				output.write("PONG :"+ m.getText());
+			} else if("PRIVMSG".equals(m.getCommand()) && chan.equals(m.getArgs())) {
+				buffer = (m.getText() +'\n').getBytes();
 				end = buffer.length;
 				index = 0;
 				break;

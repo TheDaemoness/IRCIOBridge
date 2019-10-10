@@ -1,8 +1,7 @@
 package com.github.thedaemoness.irciobridge;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
+import java.util.function.Supplier;
 
 public class UserDataModel {
 	public String getRealName() {
@@ -11,29 +10,30 @@ public class UserDataModel {
 	public String getIdent() {
 		return ident;
 	}
-	public Collection<String> getNicks() {
-		return Collections.unmodifiableCollection(nicks);
+	public List<String> getNicks() {
+		return nicks;
 	}
 	private final String realName;
-	
 	private final String ident;
+	private final List<String> nicks;
 	
-	private final Collection<String> nicks = new ArrayList<>();
-	
-	public UserDataModel(
+	private UserDataModel(
 			String realName,
 			String ident,
-			Collection<String> nicks) {
+			List<String> nicks) {
 		this.realName = realName;
 		this.ident = ident;
-		this.nicks.addAll(nicks);
+		this.nicks = Collections.unmodifiableList(nicks);
 	}
-	public static final class Builder {
+	public static final class Builder implements Supplier<UserDataModel> {
+		private final List<String> nicks = new ArrayList<>();
+		private String ident;
 		private String realName = "Beep Boop";
-		
-		private String ident = "foo";
-		
-		private final Collection<String> nicks = new ArrayList<>();
+
+		private Builder(String nick) {
+			ident = nick;
+			nicks.add(nick);
+		}
 		
 		public Builder setRealName(String realName) {
 			this.realName = realName;
@@ -49,12 +49,19 @@ public class UserDataModel {
 			nicks.add(nick);
 			return this;
 		}
-		
-		public UserDataModel build() {
-			if (nicks.isEmpty()) {
-				nicks.add("IRCIOBridge_User");
-			}
+
+		@Override
+		public UserDataModel get() {
 			return new UserDataModel(realName, ident, nicks);
 		}
+	}
+	public static Builder builder(String nick) {
+		return new Builder(nick);
+	}
+	public static Builder builder(Iterable<String> nick) {
+		final var iterator = nick.iterator();
+		final var bob = builder(iterator.next());
+		while(iterator.hasNext()) bob.addNick(iterator.next());
+		return bob;
 	}
 }

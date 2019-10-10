@@ -46,13 +46,13 @@ public class IRCIOBridge implements AutoCloseable {
 		while(input.hasNextLine()) { //WARNING: break;
 			final Message m = new Message(input.nextLine());
 			System.err.println(m);
-			if("004".equals(m.command)) {
+			if("004".equals(m.getCommand())) {
 				output.write("JOIN "+CHANNEL+"\r\n");
-			} else if("366".equals(m.command)) {
+			} else if("366".equals(m.getCommand())) {
 				break;
-			} else if("PING".equals(m.command)) {
-				output.write("PONG :"+m.text+"\r\n");
-			} else if("433".equals(m.command)) {
+			} else if("PING".equals(m.getCommand())) {
+				output.write("PONG :"+ m.getText() +"\r\n");
+			} else if("433".equals(m.getCommand())) {
 				if(nickit.hasNext()) {
 					nick = nickit.next();
 					output.write("NICK "+nick+"\r\n");

@@ -24,7 +24,7 @@ public class PingMessageHandler implements MessageHandler {
 	@Override
 	public void onNext(Message m) {
 		try {
-			writer.write("PONG :"+m.text+"\r\n");
+			writer.write("PONG :"+ m.getText() +"\r\n");
 		} catch (IOException e) {
 			onError(e);
 		}

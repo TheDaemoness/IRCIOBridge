@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -86,26 +87,25 @@ public class ServerDataModel implements Serializable {
 		this.quitMessage = quitMessage;
 		this.encoding = encoding;
 	}
-	public static final class Builder {
+	public static final class Builder implements Supplier<ServerDataModel> {
 		private UserDataModel user = null;
 		private String address = "irc.freenode.net";
 		private String serverPassword = "";
 		private int port = 6667;
 		private boolean useSsl = false;
 		private Collection<ChannelDataModel> channels = new HashSet<>();
-		private String partMessage = "IRCIOBridge Left!";
-		private String quitMessage = "IRCIOBridge Terminated!";
+		private String partMessage;
+		private String quitMessage;
 		private Charset encoding = StandardCharsets.UTF_8;
 		
-		private Builder(int port, boolean useSsl) {
+		private Builder(UserDataModel user, int port, boolean useSsl) {
 			this.port = port;
 			this.useSsl = useSsl;
-		}
-		
-		public Builder setUser(UserDataModel user) {
 			this.user = user;
-			return this;
+			partMessage = user.getIdent()+" left";
+			quitMessage = user.getIdent()+" quit";
 		}
+
 		public Builder setAddress(String address) {
 			this.address = address;
 			return this;
@@ -135,17 +135,17 @@ public class ServerDataModel implements Serializable {
 			this.encoding = encoding;
 			return this;
 		}
-		public ServerDataModel build() {
+
+		@Override
+		public ServerDataModel get() {
 			Objects.requireNonNull(user, "User cannot be null.");
 			return new ServerDataModel(user, address, serverPassword, port, useSsl, channels, partMessage, quitMessage, encoding);
-			
-		}
-		public static Builder builder() {
-			return new Builder(6667, false);
-		}
-		public static Builder builderSsl() {
-			return new Builder(6697, true);
 		}
 	}
-
+	public static Builder builder(UserDataModel who, boolean useSsl) {
+		return new Builder(who, useSsl ? 6697 : 6667, useSsl);
+	}
+	public static Builder builder(UserDataModel who) {
+		return builder(who, false);
+	}
 }

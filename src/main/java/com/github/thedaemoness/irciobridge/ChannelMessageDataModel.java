@@ -1,5 +1,7 @@
 package com.github.thedaemoness.irciobridge;
 
+import java.util.function.Supplier;
+
 public class ChannelMessageDataModel {
 	private final String senderNick;
 	
@@ -15,7 +17,7 @@ public class ChannelMessageDataModel {
 		this.channelName = channelName;
 	}
 	
-	public static class Builder {
+	public static class Builder implements Supplier<ChannelMessageDataModel> {
 
 		private String senderNick = null;
 		
@@ -37,8 +39,9 @@ public class ChannelMessageDataModel {
 			this.channelName = channelName;
 			return this;
 		}
-		
-		public ChannelMessageDataModel build() {
+
+		@Override
+		public ChannelMessageDataModel get() {
 			return new ChannelMessageDataModel(senderNick, timeStamp, channelName);
 		}
 	}

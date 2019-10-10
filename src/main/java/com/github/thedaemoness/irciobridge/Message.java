@@ -3,7 +3,10 @@ package com.github.thedaemoness.irciobridge;
 import java.util.Scanner;
 
 public class Message {
-	public final String prefix, command, args, text;
+	private final String prefix;
+	private final String command;
+	private final String args;
+	private final String text;
 	Message(String s) {
 		Scanner line = new Scanner(s);
 		final String cmdbuf = line.next();
@@ -21,6 +24,22 @@ public class Message {
 	}
 	@Override
 	public String toString() {
-		return String.join("", ":", prefix, " ", command, " ", args, " :", text);
+		return String.join("", ":", getPrefix(), " ", getCommand(), " ", getArgs(), " :", getText());
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public String getCommand() {
+		return command;
+	}
+
+	public String getArgs() {
+		return args;
+	}
+
+	public String getText() {
+		return text;
 	}
 }

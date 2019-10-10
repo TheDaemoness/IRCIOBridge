@@ -55,7 +55,7 @@ public class IRCIOBridgeCommandReceiver extends AbstractIdleService implements O
 
 	@Override
 	public void onNext(Message m) {
-		if("PING".equals(m.command)) {
+		if("PING".equals(m.getCommand())) {
 			pingSubject.onNext(m);
 		}
 	}

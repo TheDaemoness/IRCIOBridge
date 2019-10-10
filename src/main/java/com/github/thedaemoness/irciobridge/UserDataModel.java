@@ -1,38 +1,60 @@
 package com.github.thedaemoness.irciobridge;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class UserDataModel {
-	private int nickIndex = 0; //Do not make final.
-
-	private final String ident;
-	private final String realName;
-	private final List<String> nickOptions;
-
-	public UserDataModel(String ident, String realName, String... nicks) {
-		assert(nicks.length != 0);
-		this.ident = ident;
-		this.realName = realName;
-		this.nickOptions = Arrays.asList(nicks);
-	}
-
-	public String getIdent() {
-		return ident;
-	}
-
 	public String getRealName() {
 		return realName;
 	}
-
-	public String getNick() {
-		return nickOptions.get(nickIndex);
+	public String getIdent() {
+		return ident;
 	}
-
-	public boolean nextNick() {
-		if(nickIndex != nickOptions.size()) {
-			++nickIndex;
-			return true;
-		} else return false;
+	public Collection<String> getNicks() {
+		return Collections.unmodifiableCollection(nicks);
+	}
+	private final String realName;
+	
+	private final String ident;
+	
+	private final Collection<String> nicks = new ArrayList<>();
+	
+	public UserDataModel(
+			String realName,
+			String ident,
+			Collection<String> nicks) {
+		this.realName = realName;
+		this.ident = ident;
+		this.nicks.addAll(nicks);
+	}
+	public static final class Builder {
+		private String realName = "Beep Boop";
+		
+		private String ident = "foo";
+		
+		private final Collection<String> nicks = new ArrayList<>();
+		
+		public Builder setRealName(String realName) {
+			this.realName = realName;
+			return this;
+		}
+		
+		public Builder setIdent(String ident) {
+			this.ident = ident;
+			return this;
+		}
+		
+		public Builder addNick(String nick) {
+			nicks.add(nick);
+			return this;
+		}
+		
+		public UserDataModel build() {
+			if (nicks.isEmpty()) {
+				nicks.add("IRCIOBridge_User");
+			}
+			return new UserDataModel(realName, ident, nicks);
+		}
 	}
 }

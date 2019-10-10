@@ -8,6 +8,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 public class ServerDataModel implements Serializable {
 	private final UserDataModel user;
@@ -24,6 +28,12 @@ public class ServerDataModel implements Serializable {
 
 	private final String partMessage;
 	private final String quitMessage;
+	
+    private final Cache<UUID, ChannelMessageDataModel> serverMessageBuffer = 
+       CacheBuilder.newBuilder()
+       .maximumSize(1000)
+       //.expireAfterAccess(30, TimeUnit.MINUTES)
+       .build();
 	
 	public UserDataModel getUser() {
 		return user;
@@ -80,13 +90,13 @@ public class ServerDataModel implements Serializable {
 		private UserDataModel user = null;
 		private String address = "irc.freenode.net";
 		private String serverPassword = "";
-		private int port;
-		private boolean useSsl;
+		private int port = 6667;
+		private boolean useSsl = false;
 		private Collection<ChannelDataModel> channels = new HashSet<>();
 		private String partMessage = "IRCIOBridge Left!";
 		private String quitMessage = "IRCIOBridge Terminated!";
 		private Charset encoding = StandardCharsets.UTF_8;
-
+		
 		private Builder(int port, boolean useSsl) {
 			this.port = port;
 			this.useSsl = useSsl;

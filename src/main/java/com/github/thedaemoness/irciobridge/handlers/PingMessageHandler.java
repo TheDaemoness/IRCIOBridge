@@ -3,7 +3,7 @@ package com.github.thedaemoness.irciobridge.handlers;
 import java.io.IOException;
 import java.io.Writer;
 
-import com.github.thedaemoness.irciobridge.messages.Message;
+import com.github.thedaemoness.irciobridge.messages.MessageIn;
 
 import io.reactivex.disposables.Disposable;
 
@@ -22,7 +22,7 @@ public class PingMessageHandler implements MessageHandler {
 	}
 
 	@Override
-	public void onNext(Message m) {
+	public void onNext(MessageIn m) {
 		try {
 			writer.write("PONG :"+ m.getText() +"\r\n");
 		} catch (IOException e) {

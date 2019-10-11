@@ -1,7 +1,5 @@
 package com.github.thedaemoness.irciobridge.messages;
 
-import io.reactivex.annotations.Nullable;
-
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -10,7 +8,7 @@ import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class SocketWrapper implements AutoCloseable, Supplier<Message>, Consumer<Message> {
+public class SocketWrapper implements AutoCloseable, Supplier<MessageIn>, Consumer<MessageOut> {
 	private Scanner in;
 	private Writer out;
 
@@ -26,9 +24,9 @@ public class SocketWrapper implements AutoCloseable, Supplier<Message>, Consumer
 	}
 
 	@Override
-	public void accept(Message message) {
+	public void accept(MessageOut messageIn) {
 		try {
-			out.write(message.toString(true));
+			out.write(messageIn.toString(true));
 		} catch (IOException e) {
 			//Unfortunate.
 			e.printStackTrace();
@@ -36,8 +34,8 @@ public class SocketWrapper implements AutoCloseable, Supplier<Message>, Consumer
 	}
 
 	@Override
-	public Message get() {
-		if(in.hasNextLine()) return new Message(in.nextLine());
-		else return Message.EMPTY;
+	public MessageIn get() {
+		if(in.hasNextLine()) return MessageIn.parse(in.nextLine());
+		else return MessageIn.EMPTY;
 	}
 }

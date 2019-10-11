@@ -2,46 +2,27 @@ package com.github.thedaemoness.irciobridge.messages;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
-public class Message {
-	public static final Message EMPTY = new Message(MessageType.EMPTY, "");
-
-	private final String prefix;
-	private final MessageType type;
+public abstract class Message<Type extends MessageType> {
+	private final Type type;
 	private final String[] args;
 	private final String argsJoined;
 	private final String text;
-	public Message(String s) {
-		Scanner line = new Scanner(s);
-		final String cmdbuf = line.next();
-		if(cmdbuf.charAt(0) == ':') {
-			prefix = cmdbuf.substring(1);
-			type = MessageType.parse(line.next());
-		} else {
-			prefix = "";
-			type = MessageType.parse(cmdbuf);
-		}
-		final String[] divided = line.nextLine().split(":",2);
-		argsJoined = divided[0].trim();
-		args = argsJoined.split(" ");
-		if(divided.length == 2) text = divided[1];
-		else text = "";
-	}
-	Message(MessageType type, String text, String... args) {
-		this.prefix = "";
+	protected Message(Type type, String[] args, String argsJoined, String text) {
 		this.type = type;
 		this.args = args;
-		this.argsJoined = String.join(" ", args);
+		this.argsJoined = argsJoined;
 		this.text = text;
 	}
-	public String toString(boolean includeNewline) {
-		final StringBuilder sb = new StringBuilder();
-		if(!prefix.isEmpty()) sb.append(':').append(prefix).append(' ');
+	final protected void buildString(StringBuilder sb, boolean includeNewline) {
 		sb.append(type);
 		if(!argsJoined.isEmpty()) sb.append(" ").append(argsJoined);
 		if(!text.isEmpty()) sb.append(" :").append(text);
 		if(includeNewline) sb.append("\r\n");
+	}
+	public String toString(boolean includeNewline) {
+		final StringBuilder sb = new StringBuilder();
+		buildString(sb, includeNewline);
 		return sb.toString();
 	}
 	@Override
@@ -49,11 +30,7 @@ public class Message {
 		return toString(false);
 	}
 
-	public String getPrefix() {
-		return prefix;
-	}
-
-	public MessageType getType() {
+	public Type getType() {
 		return type;
 	}
 

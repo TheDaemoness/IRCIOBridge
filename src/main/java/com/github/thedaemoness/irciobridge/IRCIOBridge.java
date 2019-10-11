@@ -1,6 +1,7 @@
 package com.github.thedaemoness.irciobridge;
 
 import com.github.thedaemoness.irciobridge.messages.Message;
+import com.github.thedaemoness.irciobridge.messages.MessageIn;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -46,7 +47,7 @@ public class IRCIOBridge implements AutoCloseable {
 		output.write("USER "+nick+" 8 * :Beep boop.\r\n");
 		output.flush();
 		while(input.hasNextLine()) { //WARNING: break;
-			final Message m = new Message(input.nextLine());
+			final MessageIn m = MessageIn.parse(input.nextLine());
 			System.err.println(m);
 			if("004".equals(m.getCommand())) {
 				output.write("JOIN "+CHANNEL+"\r\n");

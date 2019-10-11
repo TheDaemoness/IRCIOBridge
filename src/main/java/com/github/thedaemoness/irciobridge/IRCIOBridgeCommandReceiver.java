@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
+import com.github.thedaemoness.irciobridge.messages.Message;
 import com.google.common.util.concurrent.AbstractIdleService;
 
 import io.reactivex.Observable;

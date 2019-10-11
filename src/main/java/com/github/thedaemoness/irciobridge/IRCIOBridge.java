@@ -1,5 +1,7 @@
 package com.github.thedaemoness.irciobridge;
 
+import com.github.thedaemoness.irciobridge.messages.Message;
+
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.io.*;

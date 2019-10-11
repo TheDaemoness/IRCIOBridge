@@ -12,10 +12,16 @@ public interface MessageType {
 		COMMAND,
 		REPLY,
 		ERROR;
-
 		private static Map<String, MessageType> parseMap = new HashMap<>();
 	}
 	Info getInfo();
+
+	MessageType EMPTY = new MessageType() {
+		@Override
+		public Info getInfo() { return Info.UNKNOWN; }
+		@Override
+		public String toString() { return ""; }
+	};
 
 	static MessageType parse(String text) {
 		return Info.parseMap.computeIfAbsent(text, key -> new MessageType() {
@@ -24,6 +30,12 @@ public interface MessageType {
 			@Override
 			public Info getInfo() { return Info.UNKNOWN; }
 		});
+	}
+
+	interface Sendable extends MessageType {
+		default Message createRaw(String[] args, String text) {
+			return new Message(this, text, args);
+		}
 	}
 
 	interface Response extends MessageType {
@@ -40,7 +52,7 @@ public interface MessageType {
 		}
 	}
 
-	enum Command implements MessageType {
+	enum Command implements Sendable {
 		ADMIN,
 		AWAY,
 		CAP,

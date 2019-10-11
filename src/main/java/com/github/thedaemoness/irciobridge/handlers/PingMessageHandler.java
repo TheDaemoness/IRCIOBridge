@@ -3,7 +3,7 @@ package com.github.thedaemoness.irciobridge.handlers;
 import java.io.IOException;
 import java.io.Writer;
 
-import com.github.thedaemoness.irciobridge.Message;
+import com.github.thedaemoness.irciobridge.messages.Message;
 
 import io.reactivex.disposables.Disposable;
 

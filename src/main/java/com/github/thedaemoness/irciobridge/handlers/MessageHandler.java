@@ -1,8 +1,6 @@
 package com.github.thedaemoness.irciobridge.handlers;
 
-import java.util.function.Consumer;
-
-import com.github.thedaemoness.irciobridge.Message;
+import com.github.thedaemoness.irciobridge.messages.Message;
 
 import io.reactivex.Observer;
 

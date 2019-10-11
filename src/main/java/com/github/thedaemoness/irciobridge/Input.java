@@ -1,5 +1,7 @@
 package com.github.thedaemoness.irciobridge;
 
+import com.github.thedaemoness.irciobridge.messages.Message;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -19,7 +21,7 @@ class Input extends InputStream {
 			System.err.println(m);
 			if("PING".equals(m.getCommand())) {
 				output.write("PONG :"+ m.getText());
-			} else if("PRIVMSG".equals(m.getCommand()) && chan.equals(m.getArgs())) {
+			} else if("PRIVMSG".equals(m.getCommand()) && m.getArgs().contains(chan)) {
 				buffer = (m.getText() +'\n').getBytes();
 				end = buffer.length;
 				index = 0;

@@ -17,17 +17,25 @@ public abstract class Message<Type extends MessageType> {
 	final protected void buildString(StringBuilder sb, boolean includeNewline) {
 		sb.append(type);
 		if(!argsJoined.isEmpty()) sb.append(" ").append(argsJoined);
-		if(!text.isEmpty()) sb.append(" :").append(text);
 		if(includeNewline) sb.append("\r\n");
+		if(!text.isEmpty()) sb.append(" :");
 	}
 	public String toString(boolean includeNewline) {
 		final StringBuilder sb = new StringBuilder();
 		buildString(sb, includeNewline);
+		sb.append(text);
 		return sb.toString();
 	}
 	@Override
 	public String toString() {
 		return toString(false);
+	}
+
+	public boolean isAnyOf(MessageType... which) {
+		for(MessageType type: which) {
+			if(type == this.type) return true;
+		}
+		return false;
 	}
 
 	public Type getType() {

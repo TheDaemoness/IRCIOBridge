@@ -34,6 +34,7 @@ public class MessageIn extends Message<MessageType> {
 		final StringBuilder sb = new StringBuilder();
 		if(!prefix.isEmpty()) sb.append(':').append(prefix).append(' ');
 		super.buildString(sb, includeNewline);
+		sb.append(getText());
 		return sb.toString();
 	}
 

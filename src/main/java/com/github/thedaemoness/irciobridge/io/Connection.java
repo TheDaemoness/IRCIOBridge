@@ -5,10 +5,9 @@ import com.github.thedaemoness.irciobridge.messages.MessageIn;
 import com.github.thedaemoness.irciobridge.messages.MessageOut;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public class Connection implements MessageIO {
-	private MessageIO io;
+	private final MessageIO io;
 	private String nick;
 	//private Set<Character> flags; //TODO: Flag interface + enum? Also, boxing improvements.
 

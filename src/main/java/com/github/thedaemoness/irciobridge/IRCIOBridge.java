@@ -4,6 +4,7 @@ import com.github.thedaemoness.irciobridge.io.Connection;
 import com.github.thedaemoness.irciobridge.io.Handshake;
 import com.github.thedaemoness.irciobridge.io.ServerAddress;
 import com.github.thedaemoness.irciobridge.messages.MessageIn;
+import com.github.thedaemoness.irciobridge.messages.MessageType;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -41,20 +42,20 @@ public class IRCIOBridge implements AutoCloseable {
 		SERVER = server;
 		CHANNEL = channel;
 		s = new Socket(SERVER, PORT);
-		final var address = ServerAddress.build(SERVER).setPort(port).get();
+		final var address = ServerAddress.get(SERVER, PORT, false);
 		Scanner input = new Scanner(s.getInputStream(), StandardCharsets.UTF_8);
 		Writer output = new OutputStreamWriter(s.getOutputStream());
 		//Side effect: also handles most of the initial messaging.
-		NICK = Connection.make(address, UserDataModel.builder(nicks).get(), Handshake.Basic.INSTANCE).getNick();
+		final var connection = Connection.make(address, UserDataModel.builder(nicks).get(), Handshake.Basic.INSTANCE);
+		NICK = connection.getNick();
 		while(input.hasNextLine()) { //WARNING: break;
-			final MessageIn m = MessageIn.parse(input.nextLine());
+			final MessageIn m = connection.get();
 			System.err.println(m);
-			if("004".equals(m.getCommand())) {
-				output.write("JOIN "+CHANNEL+"\r\n");
-			} else if("366".equals(m.getCommand())) {
+			if(m.getType() == MessageType.Reply.MYINFO) {
+				connection.accept(MessageType.Command.JOIN.createRaw("", CHANNEL));
+			} else if(m.getType() == MessageType.Reply.ENDOFNAMES) {
 				break;
 			}
-			output.flush();
 		}
 		this.out = new PrintStream(new Output(s.getOutputStream(), CHANNEL));
 		this.in = new Input(input, output, CHANNEL);

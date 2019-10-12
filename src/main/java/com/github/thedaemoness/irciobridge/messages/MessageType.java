@@ -52,6 +52,8 @@ public interface MessageType {
 		}
 	}
 
+	interface ResponseError extends Response {}
+
 	enum Command implements Sendable {
 		ADMIN,
 		AWAY,
@@ -209,7 +211,7 @@ public interface MessageType {
 		public String toString() { return "RPL_"+this.name(); }
 	}
 
-	enum Error implements Response {
+	enum Error implements ResponseError {
 		NOSUCHNICK(401),
 		NOSUCHSERVER(402),
 		NOSUCHCHANNEL(403),

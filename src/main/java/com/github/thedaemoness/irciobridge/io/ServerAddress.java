@@ -1,64 +1,85 @@
 package com.github.thedaemoness.irciobridge.io;
 
+import io.reactivex.annotations.Nullable;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
-import java.util.function.Supplier;
+import java.net.UnknownHostException;
+import java.util.Objects;
 
-public class ServerAddress {
-	public static final ServerAddress FREENODE = ServerAddress.build("irc.freenode.net").get();
+public final class ServerAddress {
+	public static final int DEFAULT_PORT = 6667;
+	public static final int DEFAULT_PORT_SSL = 6697;
+	private static SocketFactory defaultSocketFactory(boolean useSsl) {
+		return useSsl ? SSLSocketFactory.getDefault() : SocketFactory.getDefault();
+	}
 
-	private final String address;
+	public static final ServerAddress LOCALHOST = ServerAddress.get(null, false);
+	public static final ServerAddress FREENODE = ServerAddress.get("irc.freenode.net", true);
+
+	@Nullable private final String address;
+	@Nullable private final InetAddress resolved;
 	private final int port;
-	private final boolean useSsl;
-	private final String password; //Keeping this here because it's critical info for connecting to a specific server.
+	private final SocketFactory sockFactory;
+	//Keeping this here because it's critical info for connecting to a specific server.
+	@Nullable private final String password;
 
-	private ServerAddress(String address, int port, boolean useSsl, String password) {
+	private ServerAddress(String address, InetAddress resolved, int port, SocketFactory sockFactory, String password) {
 		this.address = address;
+		this.resolved = resolved;
 		this.port = port;
-		this.useSsl = useSsl;
+		this.sockFactory = sockFactory;
 		this.password = password;
 	}
+	public static ServerAddress get(String address, int port, boolean useSsl) {
+		return new ServerAddress(address, null, port, defaultSocketFactory(useSsl), "");
+	}
+	public static ServerAddress get(String address, boolean useSsl) {
+		return get(address, useSsl ? DEFAULT_PORT_SSL : DEFAULT_PORT, useSsl);
+	}
+	public static ServerAddress get(String address) {
+		return get(address, false);
+	}
 
-	public String getAddress() { return address; }
+	public ServerAddress withAddress(String address) {
+		return new ServerAddress(address, null, port, sockFactory, password);
+	}
+	public ServerAddress withAddress(InetAddress address) {
+		Objects.requireNonNull(address);
+		return new ServerAddress(address.getHostName(), address, port, sockFactory, password);
+	}
+	public ServerAddress withPort(int port, SocketFactory sockFactory) {
+		Objects.requireNonNull(sockFactory);
+		return new ServerAddress(address, resolved, port, sockFactory, password);
+	}
+	public ServerAddress withPort(int port, boolean useSsl) {
+		return withPort(port, defaultSocketFactory(useSsl));
+	}
+	public ServerAddress withPassword(String password) {
+		return new ServerAddress(address, resolved, port, sockFactory, password == null ? "" : password);
+	}
+	public InetAddress resolve() throws UnknownHostException {
+		return (resolved != null) ? resolved : InetAddress.getByName(address);
+	}
+	public String getAddress() { return (address == null ? "localhost" : address); }
 	public int getPort() { return port; }
-	public boolean shouldUseSSL() { return useSsl; }
 	public String getPassword() { return password; }
 
+	public boolean isReachable(int timeout) {
+		try {
+			return resolve().isReachable(timeout);
+		} catch (IOException e) {
+			return false;
+		}
+	}
 	public Socket connect() throws IOException {
-		return new Socket(address, port);
+		return sockFactory.createSocket(resolve(), getPort());
 	}
-
-	public static final class Builder implements Supplier<ServerAddress> {
-		private String address;
-		private String password = "";
-		private boolean useSsl = false;
-		private int port = -1; // -1 is magic.
-
-		private Builder(String address) { this.address = address; }
-		public Builder setAddress(String address) {
-			this.address = address;
-			return this;
-		}
-		public Builder setPassword(String password) {
-			this.password = password;
-			return this;
-		}
-		public Builder useSsl() {
-			useSsl = true;
-			return this;
-		}
-		public Builder setPort(int port) {
-			this.port = port;
-			return this;
-		}
-
-		@Override
-		public ServerAddress get() {
-			return new ServerAddress(address, port < 0 ? (useSsl ? 6697 : 6667) : port, useSsl, password);
-		}
-	}
-
-	public static Builder build(String address) {
-		return new Builder(address);
+	@Override
+	public String toString() {
+		return getAddress()+':'+port;
 	}
 }

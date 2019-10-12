@@ -5,8 +5,8 @@ import com.github.thedaemoness.irciobridge.messages.MessageType;
 import java.io.IOException;
 
 public class IRCException extends IOException {
-	private MessageType.Error error;
-	public IRCException(MessageType.Error what) {
+	private MessageType.ResponseError error;
+	public IRCException(MessageType.ResponseError what) {
 		this.error = what;
 	}
 

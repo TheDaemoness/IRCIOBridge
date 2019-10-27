@@ -1,11 +1,15 @@
 package com.github.thedaemoness.irciobridge.messages;
 
-public class MessageOut extends Message<MessageType.Sendable> {
-	public final int MAX_LENGTH = 512;
+import com.github.thedaemoness.irciobridge.info.SenderInfo;
 
+import java.util.Arrays;
+
+public class MessageOut extends Message<MessageType.Sendable> {
 	MessageOut(MessageType.Sendable type, String[] args, String text) {
-		super(type, args, String.join(" ", args), text);
+		super(type, Arrays.asList(args), String.join(" ", args), text);
 	}
 
-	//TODO: Split overlong messages.
+	public MessageIn asFrom(SenderInfo who) {
+		return new MessageIn(who.toString(), getType(), getArgs(), getArgsJoined(), getText());
+	}
 }

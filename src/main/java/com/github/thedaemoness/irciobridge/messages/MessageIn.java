@@ -1,15 +1,24 @@
 package com.github.thedaemoness.irciobridge.messages;
 
+import com.github.thedaemoness.irciobridge.util.StringAccumulator;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class MessageIn extends Message<MessageType> {
 	private final String prefix;
 	protected MessageIn(String prefix, MessageType type, String argsJoined, String text) {
-		super(type, argsJoined.split(" "), argsJoined, text);
-		this.prefix = prefix;
+		this(prefix, type, Arrays.asList(argsJoined.split(" ")), argsJoined, text);
 	}
 
 	public static final MessageIn EMPTY = new MessageIn("", MessageType.EMPTY, "", "");
+
+	protected MessageIn(String prefix, MessageType type, List<String> args, String argsJoined, String text) {
+		super(type, args, argsJoined, text);
+		this.prefix = prefix;
+	}
+
 	public static MessageIn parse(String s) {
 		String prefix, text, argsJoined;
 		MessageType type;
@@ -30,12 +39,9 @@ public class MessageIn extends Message<MessageType> {
 	}
 
 	@Override
-	public String toString(boolean includeNewline) {
-		final StringBuilder sb = new StringBuilder();
-		if(!prefix.isEmpty()) sb.append(':').append(prefix).append(' ');
-		super.buildString(sb, includeNewline);
-		sb.append(getText());
-		return sb.toString();
+	protected <T> StringAccumulator<T> accumulateIn(StringAccumulator<T> sb, boolean includeNewline) {
+		if(!prefix.isEmpty()) sb.append(":").append(prefix).append(" ");
+		return super.accumulateIn(sb, includeNewline);
 	}
 
 	public String getPrefix() {

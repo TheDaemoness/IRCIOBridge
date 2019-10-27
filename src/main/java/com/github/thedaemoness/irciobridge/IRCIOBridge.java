@@ -47,12 +47,12 @@ public class IRCIOBridge implements AutoCloseable {
 		Writer output = new OutputStreamWriter(s.getOutputStream());
 		//Side effect: also handles most of the initial messaging.
 		final var connection = Connection.make(address, UserDataModel.builder(nicks).get(), Handshake.Basic.INSTANCE);
-		NICK = connection.getNick();
+		NICK = connection.getClientInfo().getNick();
 		while(input.hasNextLine()) { //WARNING: break;
 			final MessageIn m = connection.get();
 			System.err.println(m);
 			if(m.getType() == MessageType.Reply.MYINFO) {
-				connection.accept(MessageType.Command.JOIN.createRaw("", CHANNEL));
+				connection.accept(MessageType.Command.JOIN.createWithText("", CHANNEL));
 			} else if(m.getType() == MessageType.Reply.ENDOFNAMES) {
 				break;
 			}

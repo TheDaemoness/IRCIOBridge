@@ -1,6 +1,8 @@
 package com.github.thedaemoness.irciobridge.io;
 
 import com.github.thedaemoness.irciobridge.UserDataModel;
+import com.github.thedaemoness.irciobridge.info.NetworkInfo;
+import com.github.thedaemoness.irciobridge.info.UserInfo;
 import com.github.thedaemoness.irciobridge.messages.MessageIn;
 import com.github.thedaemoness.irciobridge.messages.MessageOut;
 
@@ -8,12 +10,13 @@ import java.io.IOException;
 
 public class Connection implements MessageIO {
 	private final MessageIO io;
-	private String nick;
-	//private Set<Character> flags; //TODO: Flag interface + enum? Also, boxing improvements.
+	private UserInfo us;
+	private NetworkInfo them;
 
-	Connection(MessageIO io, String nick) {
+	Connection(MessageIO io, UserInfo us, NetworkInfo them) {
 		this.io = io;
-		this.nick = nick;
+		this.us = us;
+		this.them = them;
 	}
 	/* Going to avoid adding too many convenience functions (or a builder) here.
 	 * Users are likely not going to interact with this directly.
@@ -23,8 +26,15 @@ public class Connection implements MessageIO {
 		return how.shakeHands(new SocketWrapper(where.connect()), who, where.getPassword());
 	}
 
-	public String getNick() {
-		return nick;
+	public int maxLine() {
+		return 512; //This may not necessarily be fixed, depending on the IRCd and how IRCv3 progress.
+	}
+
+	public UserInfo getClientInfo() {
+		return us;
+	}
+	public NetworkInfo getNetworkInfo() {
+		return them;
 	}
 
 	//public boolean hasFlag(char flag) {return flags.contains(flag);}

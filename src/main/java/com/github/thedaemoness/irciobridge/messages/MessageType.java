@@ -33,7 +33,10 @@ public interface MessageType {
 	}
 
 	interface Sendable extends MessageType {
-		default MessageOut createRaw(String text, String... args) {
+		default MessageOut create(String... args) {
+			return new MessageOut(this, args, "");
+		}
+		default MessageOut createWithText(String text, String... args) {
 			return new MessageOut(this, args, text);
 		}
 	}

@@ -27,7 +27,7 @@ public class SocketWrapper implements MessageIO {
 	@Override
 	public void accept(MessageOut messageIn) {
 		try {
-			out.write(messageIn.toString(true));
+			out.write(messageIn.toLine());
 			out.flush();
 		} catch (IOException e) {
 			//Unfortunate.

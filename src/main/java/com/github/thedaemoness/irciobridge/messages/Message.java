@@ -1,34 +1,37 @@
 package com.github.thedaemoness.irciobridge.messages;
 
-import java.util.Arrays;
+import com.github.thedaemoness.irciobridge.util.StringAccumulator;
+
 import java.util.List;
 
 public abstract class Message<Type extends MessageType> {
 	private final Type type;
-	private final String[] args;
+	private final List<String> args;
 	private final String argsJoined;
 	private final String text;
-	protected Message(Type type, String[] args, String argsJoined, String text) {
+	protected Message(Type type, List<String> args, String argsJoined, String text) {
 		this.type = type;
 		this.args = args;
 		this.argsJoined = argsJoined;
 		this.text = text;
 	}
-	final protected void buildString(StringBuilder sb, boolean includeNewline) {
+	protected <T> StringAccumulator<T> accumulateIn(StringAccumulator<T> sb, boolean includeNewline) {
 		sb.append(type);
 		if(!argsJoined.isEmpty()) sb.append(" ").append(argsJoined);
 		if(includeNewline) sb.append("\r\n");
-		if(!text.isEmpty()) sb.append(" :");
+		if(!text.isEmpty()) sb.append(" :").append(text);
+		return sb;
 	}
-	public String toString(boolean includeNewline) {
-		final StringBuilder sb = new StringBuilder();
-		buildString(sb, includeNewline);
-		sb.append(text);
-		return sb.toString();
+	/** Returns the length of one line in bytes. */
+	final public int length() {
+		return accumulateIn( new StringAccumulator.StringLength(), true).get();
 	}
 	@Override
-	public String toString() {
-		return toString(false);
+	final public String toString() {
+		return accumulateIn( new StringAccumulator.StringBuilder(), false).get();
+	}
+	final public String toLine() {
+		return accumulateIn( new StringAccumulator.StringBuilder(), true).get();
 	}
 
 	public boolean isAnyOf(MessageType... which) {
@@ -48,7 +51,10 @@ public abstract class Message<Type extends MessageType> {
 	}
 
 	public List<String> getArgs() {
-		return Arrays.asList(args);
+		return args;
+	}
+	public String getArgsJoined() {
+		return argsJoined;
 	}
 
 	public String getText() {

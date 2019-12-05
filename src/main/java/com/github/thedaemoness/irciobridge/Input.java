@@ -1,5 +1,8 @@
 package com.github.thedaemoness.irciobridge;
 
+import com.github.thedaemoness.irciobridge.messages.MessageIn;
+import io.reactivex.annotations.NonNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -15,11 +18,11 @@ class Input extends InputStream {
 
 	private void acquireLine() throws IOException {
 		while(input.hasNextLine()) { //WARNING: break;
-			final Message m = new Message(input.nextLine());
+			final MessageIn m = MessageIn.parse(input.nextLine());
 			System.err.println(m);
 			if("PING".equals(m.getCommand())) {
 				output.write("PONG :"+ m.getText());
-			} else if("PRIVMSG".equals(m.getCommand()) && chan.equals(m.getArgs())) {
+			} else if("PRIVMSG".equals(m.getCommand()) && m.getArgs().contains(chan)) {
 				buffer = (m.getText() +'\n').getBytes();
 				end = buffer.length;
 				index = 0;

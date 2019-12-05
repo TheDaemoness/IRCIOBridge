@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
+import com.github.thedaemoness.irciobridge.messages.MessageIn;
 import com.google.common.util.concurrent.AbstractIdleService;
 
 import io.reactivex.Observable;
@@ -11,7 +12,7 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.PublishSubject;
 
-public class IRCIOBridgeCommandReceiver extends AbstractIdleService implements Observer<Message>, AutoCloseable {
+public class IRCIOBridgeCommandReceiver extends AbstractIdleService implements Observer<MessageIn>, AutoCloseable {
 	
 	private StreamReaderService streamReaderService;
 	
@@ -23,9 +24,9 @@ public class IRCIOBridgeCommandReceiver extends AbstractIdleService implements O
 		this.streamReaderService = new StreamReaderService(input, charset);
 	}
     
-    private final PublishSubject<Message> pingSubject = PublishSubject.create();
+    private final PublishSubject<MessageIn> pingSubject = PublishSubject.create();
 
-    public final Observable<Message> onPing() {
+    public final Observable<MessageIn> onPing() {
     	return pingSubject;
     }
 
@@ -54,7 +55,7 @@ public class IRCIOBridgeCommandReceiver extends AbstractIdleService implements O
 	}
 
 	@Override
-	public void onNext(Message m) {
+	public void onNext(MessageIn m) {
 		if("PING".equals(m.getCommand())) {
 			pingSubject.onNext(m);
 		}
